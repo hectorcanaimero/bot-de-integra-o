@@ -1,0 +1,3487 @@
+FORMAT: 1A
+HOST: https://api.awsli.com.br/v1/
+
+# Loja Integrada API - VERSÃO BETA
+
+Para que você possa acessar a API da Loja Integrada você deve entrar em contato com o nosso suporte
+técnico e pedir a chave da API da sua conta e a chave da aplicação que você usará. Você deverá
+enviar estas informações toda vez que acessar uma URL da API.
+
+O envio destes dados podem ser feitos de duas formas, através do método GET ou POST enviando os
+diretamente no corpo do request ou usando o cabeçalho HTTP Authentication. Abaixo seguem três exemplos:
+
+
+Via GET:
+
+> curl -X GET https://api.awsli.com.br/v1/categoria/?format=json&chave_api=82511de3-f1ca-4940-9d57-4b179172e849&chave_aplicacao=16e27d1a-c177-4ac7-8ad8-e9962ae49783
+
+Via HTTP Authentication
+
+> curl -H "Content-Type: application/json" -H "Authorization: chave_api 82511de3-f1ca-4940-9d57-4b179172e849 aplicacao 16e27d1a-c177-4ac7-8ad8-e9962ae49783" -X GET https://api.awsli.com.br/v1/categoria/
+
+# Limites (Throttling)
+
+A API possui os seguintes limites de requisições:
+
+* por aplicação (chave_aplicacao) - 3000 requisições / minuto (Err 533)
+* por loja (chave_api) - 100  requisições / minuto (Err 633)
+* por ip - 1200 requisições / minuto (Err 133)
+
+# Group Categoria
+
+Consulta e cadastro de categorias na loja
+
+## Categorias [/categoria]
+
+### Listar todas as categorias [GET]
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 10,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 4
+            },
+            "objects": [
+                {
+                    "id": 1,
+                    "id_externo": null,
+                    "nome": "Camisetas",
+                    "descricao": "Camisetas.",
+                    "categoria_pai": null,
+                    "resource_uri": "/api/v1/categoria/1"
+                },
+                {
+                    "id": 2,
+                    "id_externo": 57,
+                    "nome": "Caneca",
+                    "descricao": "Canecas.",
+                    "categoria_pai": null,
+                    "resource_uri": "/api/v1/categoria/57?id_exeterno=1"
+                },
+                {
+                    "id": 12,
+                    "id_externo": null,
+                    "nome": "Comemorativa",
+                    "descricao": "Comemorativas.",
+                    "categoria_pai": null,
+                    "resource_uri": "/api/v1/categoria/12"
+                },
+                {
+                    "id": 122,
+                    "id_externo": null,
+                    "nome": "Páscoa",
+                    "descricao": "Páscoa.",
+                    "categoria_pai": null,
+                    "resource_uri": "/api/v1/categoria/122"
+                },
+                {
+                    "id": 123,
+                    "id_externo": 20,
+                    "nome": "Natal",
+                    "descricao": "Natal.",
+                    "categoria_pai": null,
+                    "resource_uri": "/api/v1/categoria/20?id_externo=1"
+                }
+            ]
+        }
+
+### Cadastrar nova categoria [POST]
+Cadastra uma nova categoria na loja. (Passar a categoria_pai, caso seja uma subcategoria).
+
+O único campo requerido é o **nome**.
+
+O campo **id_externo** é usado para passar um id que já exista, para a categoria, em seu sistema. Assim, poderá ser realizado GET e PUT usando o seu id.
+
++ Request (application/json)
+
+        {
+            "id_externo": null,
+            "nome": "Caneca",
+            "descricao": "Canecas.",
+            "categoria_pai": null
+        }
+
++ Response 201 (application/json)
+
+        {
+            "id": 1,
+            "id_externo": null,
+            "nome": "Caneca",
+            "descricao": "Canecas.",
+            "categoria_pai": null,
+            "seo": "/api/v1/seo/2",
+            "resource_uri": "/api/v1/categoria/1"
+        }
+
+## Categoria específica [/categoria/{categoria_id}]
+
++ Parameters
+    + categoria_id: 123 (required, number) - ID da categoria
+
+### Detalhes da categoria [GET]
+Lista as informações de uma categoria específica.
+
++ Response 200 (application/json)
+
+        {
+            "id": 123,
+            "id_externo": 20,
+            "nome": "Natal",
+            "descricao": "Natal.",
+            "categoria_pai": null,
+            "seo": "/api/v1/seo/2",
+            "resource_uri": "/api/v1/categoria/123"
+        }
+
+### Alterar categoria [PUT]
+Atualiza as informações de uma categoria.
+
++ Request (application/json)
+
+        {
+            "nome": "Camisetas decorativas",
+            "categoria_pai": null
+        }
+
++ Response 202 (application/json)
+
+        {
+            "id": 123,
+            "id_externo": null,
+            "nome": "Camisetas decorativas",
+            "descricao": "Camisetas.",
+            "categoria_pai": null,
+            "seo": "/api/v1/seo/2",
+            "resource_uri": "/api/v1/categoria/1"
+        }
+
+## Categoria com id_externo [/categoria/{categoria_id}?id_externo={id_externo}]
+
++ Parameters
+    + categoria_id: 123 (required, number) - ID da categoria
+    + id_externo: 20 (optional, number) - ID externo
+
+### Detalhes da categoria [GET]
+A query string **id_externo** é uma flag que, quando passada, indica que deve ser usado o campo **id_externo** para a busca pela categoria.
+
++ Response 200 (application/json)
+
+        {
+            "id": 123,
+            "id_externo": 20,
+            "nome": "Natal",
+            "descricao": "Natal.",
+            "categoria_pai": null,
+            "seo": "/api/v1/seo/2",
+            "resource_uri": "/api/v1/categoria/20?id_externo=1"
+        }
+
+### Alterar categoria [PUT]
+Atualiza as informações de uma categoria usando o **id_externo** para a busca.
+
++ Request (application/json)
+
+        {
+            "nome": "Canecas decorativas",
+            "categoria_pai": "/api/v1/categoria/1"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "id": 2,
+            "id_externo": 57,
+            "nome": "Canecas decorativas",
+            "descricao": "Canecas.",
+            "categoria_pai": "/api/v1/categoria/1",
+            "seo": "/api/v1/seo/2",
+            "resource_uri": "/api/v1/categoria/57?id_externo=1"
+        }
+
+## Subconjunto de categorias [/categoria/set/{categoria_id_1};{categoria_id_2};{categoria_id_3}]
+
++ Parameters
+    + categoria_id_1: 1 (required, number) - ID de uma categoria
+    + categoria_id_2: 2 (optional, number) - ID de outra categoria
+    + categoria_id_3: 3 (optional, number) - ID de outra categoria
+
+### Lista de categorias [GET]
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "id": 1,
+                    "id_externo": null,
+                    "nome": "Camisetas",
+                    "descricao": "Camisetas.",
+                    "categoria_pai": null,
+                    "seo": "/api/v1/seo/2",
+                    "resource_uri": "/api/v1/categoria/1"
+                },
+                {
+                    "id": 2,
+                    "id_externo": 57,
+                    "nome": "Caneca",
+                    "descricao": "Canecas.",
+                    "categoria_pai": null,
+                    "seo": "/api/v1/seo/2",
+                    "resource_uri": "/api/v1/categoria/2"
+                }
+            ]
+        }
+
+## Subconjunto de categorias com id_externo [/categoria/set/{categoria_id_1};{categoria_id_2}?id_externo={id_externo}]
+
++ Parameters
+    + categoria_id_1: 123 (required, number) - ID de uma categoria
+    + categoria_id_2: 2 (optional, number) - ID de outra categoria
+    + id_externo: 20 (optional, number) - ID externo
+
+### Lista de categorias [GET]
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "id": 123,
+                    "id_externo": 20,
+                    "nome": "Camisetas",
+                    "apelido": "camisetas",
+                    "descricao": "Camisetas.",
+                    "categoria_pai": null,
+                    "seo": "/api/v1/seo/2",
+                    "resource_uri": "/api/v1/categoria/20?id_externo=1"
+                },
+                {
+                    "id": 2,
+                    "id_externo": 57,
+                    "nome": "Caneca",
+                    "apelido": "caneca",
+                    "descricao": "Canecas.",
+                    "categoria_pai": null,
+                    "seo": "/api/v1/seo/2",
+                    "resource_uri": "/api/v1/categoria/57?id_externo=1"
+                }
+            ]
+        }
+
+# Group Marca
+
+Consulta e cadastro de marcas na loja
+
+## Marcas [/marca]
+
+### Listar todas as marcas [GET]
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 10,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 3
+            },
+            "objects": [
+                {
+                    "id": 1,
+                    "id_externo": null,
+                    "nome": "Marca de produto",
+                    "apelido": "marca",
+                    "descricao": "Descrição detalhada da marca",
+                    "imagem": null,
+                    "resource_uri": "/api/v1/marca/1"
+                },
+                {
+                    "id": 2,
+                    "id_externo": null,
+                    "nome": "Marca de produto 2",
+                    "apelido": "marca-2",
+                    "descricao": "Descrição detalhada da marca 2",
+                    "imagem": "http://www.lojaintegrada.com.br/1/marca/1/g/90cd6b495e.jpg",
+                    "resource_uri": "/api/v1/marca/2"
+                },
+                {
+                    "id": 3,
+                    "id_externo": 4,
+                    "nome": "Marca de produto 3",
+                    "apelido": "marca-3",
+                    "descricao": "Descrição detalhada da marca 3",
+                    "imagem": null,
+                    "resource_uri": "/api/v1/marca/4?id_externo=1"
+                },
+                {
+                    "id": 4,
+                    "id_externo": 5,
+                    "nome": "Marca de produto 4",
+                    "apelido": "marca-4",
+                    "descricao": "Descrição detalhada da marca 4",
+                    "imagem": null,
+                    "resource_uri": "/api/v1/marca/5?id_externo=1"
+                }
+            ]
+        }
+
+### Cadastrar nova marca [POST]
+Cadastra uma nova marca na loja.
+
+O único campo requerido é o **nome**.
+
+O campo **id_externo** é usado para passar um id que já exista, para a marca, em seu sistema. Assim, poderá ser realizado GET e PUT usando o seu id.
+
++ Request (application/json)
+
+        {
+            "id_externo": null,
+            "nome": "Marca de produto",
+            "apelido": "marca",
+            "descricao": "Descrição detalhada da marca."
+        }
+
++ Response 201 (application/json)
+
+        {
+            "id": 1,
+            "id_externo": null,
+            "nome": "Marca de produto",
+            "apelido": "marca",
+            "descricao": "Descrição detalhada da marca.",
+            "imagem": null,
+            "resource_uri": "/api/v1/marca/1"
+        }
+
+## Marca específica [/marca/{marca_id}]
+
++ Parameters
+    + marca_id: 2 (required, number) - ID da marca
+
+### Detalhes da marca [GET]
+Lista uma marca específica disponível na loja.
+
++ Response 200 (application/json)
+
+        {
+            "id": 2,
+            "id_externo": null,
+            "nome": "Marca de produto 2",
+            "apelido": "marca-2",
+            "descricao": "Descrição detalhada da marca 2",
+            "imagem": "http://www.lojaintegrada.com.br/1/marca/1/g/90cd6b495e.jpg",
+            "resource_uri": "/api/v1/marca/2"
+        }
+
+### Alterar marca [PUT]
+Atualiza as informações de uma marca.
+
++ Request (application/json)
+
+        {
+            "nome": "Marca do produto dois",
+            "slug": "marca-2",
+            "descricao": "Nova versão da descrição"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "id": 2,
+            "id_externo": null,
+            "nome": "Marca do produto dois",
+            "apelido": "marca-2",
+            "descricao": "Nova versão da descrição",
+            "imagem": "http://www.lojaintegrada.com.br/1/marca/1/g/90cd6b495e.jpg",
+            "resource_uri": "/api/v1/marca/2"
+        }
+
+## Marca com id_externo [/marca/{marca_id}?id_externo={id_externo}]
+
++ Parameters
+    + marca_id: 3 (required, number) - ID da marca
+    + id_externo: 4 (optional, number) - ID externo
+
+### Detalhes da marca [GET]
+A query string **id_externo** é uma flag que, quando passada, indica que deve ser usado o campo **id_externo** para a busca pela marca.
+
++ Response 200 (application/json)
+
+        {
+            "id": 3,
+            "id_externo": 4,
+            "nome": "Marca de produto 3",
+            "apelido": "marca-3",
+            "descricao": "Descrição detalhada da marca 3",
+            "imagem": null,
+            "resource_uri": "/api/v1/marca/4?id_externo=1"
+        }
+
+### Alterar marca [PUT]
+Atualiza as informações de uma marca usando o **id_externo** para a busca.
+
++ Request (application/json)
+
+        {
+            "nome": "Marca do produto três",
+            "slug": "marca-três",
+            "descricao": "Nova versão da descrição"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "id": 3,
+            "id_externo": 4,
+            "nome": "Marca do produto três",
+            "apelido": "marca-três",
+            "descricao": "Nova versão da descrição",
+            "imagem": null,
+            "resource_uri": "/api/v1/marca/4?id_externo=1"
+        }
+
+## Subconjunto de marcas [/marca/set/{marca_id_1};{marca_id_2};{marca_id_3}]
+
++ Parameters
+    + marca_id_1: 1 (required, number) - ID de uma marca
+    + marca_id_2: 2 (optional, number) - ID de outra marca
+    + marca_id_3: 3 (optional, number) - ID de outra marca
+
+### Lista de marcas [GET]
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "id": 1,
+                    "id_externo": null,
+                    "nome": "Marca de produto",
+                    "apelido": "marca",
+                    "descricao": "Descrição detalhada da marca",
+                    "imagem": null,
+                    "resource_uri": "/api/v1/marca/1"
+                },
+                {
+                    "id": 2,
+                    "id_externo": null,
+                    "nome": "Marca de produto 2",
+                    "apelido": "marca-2",
+                    "descricao": "Descrição detalhada da marca 2",
+                    "imagem": "http://www.lojaintegrada.com.br/1/marca/1/g/90cd6b495e.jpg",
+                    "resource_uri": "/api/v1/marca/2"
+                }
+            ]
+        }
+
+## Subconjunto de marcas com id_externo [/marca/set/{marca_id_1};{marca_id_2}?id_externo={id_externo}]
+
++ Parameters
+    + marca_id_1: 3 (required, number) - ID de uma marca
+    + marca_id_2: 4 (optional, number) - ID de outra marca
+    + id_externo: 5 (optional, number) - ID externo
+
+### Lista de marcas [GET]
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "id": 3,
+                    "id_externo": 4,
+                    "nome": "Marca de produto 3",
+                    "apelido": "marca-3",
+                    "descricao": "Descrição detalhada da marca 3",
+                    "imagem": null,
+                    "resource_uri": "/api/v1/marca/4?id_externo=1"
+                },
+                {
+                    "id": 4,
+                    "id_externo": 5,
+                    "nome": "Marca de produto 4",
+                    "apelido": "marca-4",
+                    "descricao": "Descrição detalhada da marca 4",
+                    "imagem": null,
+                    "resource_uri": "/api/v1/marca/5?id_externo=1"
+                }
+            ]
+        }
+
+# Group Grade
+
+Consulta e cadastro de grades da loja
+
+## Grades [/grades]
+
+### Listar todas as grades [GET]
+Lista as grades existentes na sua loja e junto lista as grades padrão do sistema.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 10,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 7
+            },
+            "objects": [
+                {
+                    "id": 8948,
+                    "nome": "Duas cores",
+                    "nome_visivel": "Cor",
+                    "resource_uri": "/api/v1/grades/8948"
+                },
+                {
+                    "id": 8947,
+                    "nome": "Tamanho da calça",
+                    "nome_visivel": "Tamanho",
+                    "resource_uri": "/api/v1/grades/8947"
+                },
+                {
+                    "id": 8950,
+                    "nome": "Tamanho da camisa/camiseta",
+                    "nome_visivel": "Tamanho",
+                    "resource_uri": "/api/v1/grades/8950"
+                },
+                {
+                    "id": 8946,
+                    "nome": "Tamanho do capacete",
+                    "nome_visivel": "Tamanho",
+                    "resource_uri": "/api/v1/grades/8946"
+                },
+                {
+                    "id": 8944,
+                    "nome": "Tamanho do tênis",
+                    "nome_visivel": "Tamanho",
+                    "resource_uri": "/api/v1/grades/8944"
+                },
+                {
+                    "id": 8945,
+                    "nome": "Uma cor",
+                    "nome_visivel": "Cor",
+                    "resource_uri": "/api/v1/grades/8945"
+                },
+                {
+                    "id": 8949,
+                    "nome": "Voltagem",
+                    "nome_visivel": "Voltagem",
+                    "resource_uri": "/api/v1/grades/8949"
+                }
+            ]
+        }
+
+### Cadastrar nova grade [POST]
+
++ Request (application/json)
+
+        {
+            "nome": "Grade personalizada",
+            "nome_visivel": "Grade personalizada"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "id": 47763,
+            "id_externo": null,
+            "nome": "Grade personalizada",
+            "nome_visivel": "Grade personalizada",
+            "resource_uri": "/api/v1/grades/47763",
+            "variacoes": []
+        }
+
+## Grade específica [/grades/{grade_id}]
+
++ Parameters
+    + grade_id: 636 (required, number) - ID da grade
+
+### Detalhes da grade [GET]
+Detalha a grade e lista as suas variações.
+
++ Response 200 (application/json)
+
+        {
+            "id": 636,
+            "id_externo": null,
+            "nome": "Tamanho",
+            "nome_visivel": null,
+            "resource_uri": "/api/v1/grades/636",
+            "variacoes": [
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 9270,
+                    "id_externo": null,
+                    "nome": "213",
+                    "resource_uri": "/api/v1/grade/636/variacao/9270"
+                },
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 217143,
+                    "id_externo": 1231222,
+                    "nome": "213311346",
+                    "resource_uri": "/api/v1/grade/None/variacao/1231222?id_externo=1"
+                },
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 217132,
+                    "id_externo": null,
+                    "nome": "21333",
+                    "resource_uri": "/api/v1/grade/636/variacao/217132"
+                },
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 8265,
+                    "id_externo": null,
+                    "nome": "asdfasdf",
+                    "resource_uri": "/api/v1/grade/636/variacao/8265"
+                },
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 2821,
+                    "id_externo": null,
+                    "nome": "dsaf",
+                    "resource_uri": "/api/v1/grade/636/variacao/2821"
+                },
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 2820,
+                    "id_externo": null,
+                    "nome": "N",
+                    "resource_uri": "/api/v1/grade/636/variacao/2820"
+                },
+                {
+                    "grade": "/api/v1/grades/636",
+                    "id": 5639,
+                    "id_externo": null,
+                    "nome": "sss",
+                    "resource_uri": "/api/v1/grade/636/variacao/5639"
+                }
+            ]
+        }
+
+## Variação específica [/grade/{grade_id}/variacao]
+
++ Parameters
+    + grade_id: 47763 (required, number) - ID da grade
+
+### Cadastrar nova variação [POST]
+
++ Request (application/json)
+
+        {
+          "nome": "Tamanho P"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "grade": "/api/v1/grades/47763",
+            "id": 217167,
+            "id_externo": null,
+            "nome": "Tamanho P",
+            "resource_uri": "/api/v1/grade/47763/variacao/217167"
+        }
+
+# Group Estoque
+
+O estoque do produto é definido por quatro campos no banco de dados: **gerenciado**, **quantidade**, **situacao_em_estoque**, **situacao_sem_estoque**. Segue a definição de cada um deles:
+
+**gerenciado**:
+> Define se o estoque será gerenciado pela Loja Integrada, caso não seja gerenciado o estoque sempre será definido pelo campo **situacao_em_estoque** e o campo **quantidade** será ignorado.
+
+**quantidade**:
+> Define a quantidade de produto que está atualmente em estoque.
+
+**situacao_em_estoque**:
+> Define o prazo para envio do produto. Use **0** (zero) para imediato e **1** (ou qualquero outro inteiro positivo) para prazo de envio em x dias.
+
+**situacao_sem_estoque**:
+> Só é usado quando o campo **gerenciado** estiver definido como **true**. Define o prazo de envio do produto assim que o estoque chegar a zero. Use **-1** para deixar o tornar o produto indisponível, **0** (zero) para deixar o prazo de envio como imediato e **1** (ou qualquero outro inteiro positivo) para deixar o prazo de envio para x dias.
+>
+> Este campo é melhor compreendido com o seguinte exemplo: Você tem um produto manufaturado que demora 10 dias para ser feito e você já tem 3 dele em estoque. Você deve definir o campo **quantidade** para 3 e **situacao_em_estoque** para 0 (zero) e o campo **situacao_sem_estoque** para 10. Esta configuração fará com que o prazo de envio do produto seja alterado para 10 dias assim que os três produtos que estavam em estoque forem comprados.
+
+## Estoques [/produto_estoque]
+
+### Listar todos os estoques [GET]
+Lista todos os estoques de todos os produtos.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": "/api/v1/produto_estoque/?limit=20&offset=20",
+                "offset": 0,
+                "previous": null,
+                "total_count": 106
+            },
+            "objects": [
+                {
+                    "gerenciado": true,
+                    "id": 5135,
+                    "produto": "/api/v1/produto/1/",
+                    "quantidade": 7,
+                    "quantidade_reservada": 2,
+                    "quantidade_disponivel": 5,
+                    "resource_uri": "/api/v1/produto_estoque/1/",
+                    "situacao_em_estoque": 5,
+                    "situacao_sem_estoque": 15
+                },
+                {
+                    "gerenciado": true,
+                    "id": 3513,
+                    "produto": "/api/v1/produto/2/",
+                    "quantidade": 15,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 15,
+                    "resource_uri": "/api/v1/produto_estoque/2/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": -1
+                },
+                {
+                    "gerenciado": false,
+                    "id": 3515,
+                    "produto": "/api/v1/produto/24/?id_externo=1",
+                    "quantidade": 10,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 10,
+                    "resource_uri": "/api/v1/produto_estoque/3/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": 0
+                },
+                {
+                    "gerenciado": true,
+                    "id": 3517,
+                    "produto": "/api/v1/produto/4/",
+                    "quantidade": 3,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 3,
+                    "resource_uri": "/api/v1/produto_estoque/4/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": 10
+                },
+                ...
+            ]
+        }
+
+## Estoque específico [/produto_estoque/{produto_id}]
+
++ Parameters
+    + estoque_id: 5135 (required, number) - ID do estoque desejado
+
+### Detalhes do estoque [GET]
+Lista os dados de um estoque.
+
++ Response 200 (application/json)
+
+        {
+            "gerenciado": true,
+            "id": 5135,
+            "produto": "/api/v1/produto/1/",
+            "quantidade": 7,
+            "quantidade_reservada": 2,
+            "quantidade_disponivel": 5,
+            "resource_uri": "/api/v1/produto_estoque/1/",
+            "situacao_em_estoque": 5,
+            "situacao_sem_estoque": 15
+        }
+
+### Alterar estoque [PUT]
+Atualiza as informações do estoque para um produto.
+
++ Request (application/json)
+
+        {
+            "gerenciado": true,
+            "situacao_em_estoque": 5,
+            "situacao_sem_estoque": 15,
+            "quantidade": 7
+        }
+
++ Response 202 (application/json)
+
+        {
+            "gerenciado": true,
+            "id": 5135,
+            "produto": "/api/v1/produto/1/",
+            "quantidade": 7,
+            "quantidade_reservada": 2,
+            "quantidade_disponivel": 5,
+            "resource_uri": "/api/v1/produto_estoque/1/",
+            "situacao_em_estoque": 5,
+            "situacao_sem_estoque": 15
+        }
+
+## Estoque com id_externo [/produto_estoque/{estoque_id}?id_externo={id_externo}]
+
++ Parameters
+    + estoque_id: 5135 (required, number) - ID do estoque desejado
+    + id_externo: 1 (optional, number) - ID externo
+
+### Detalhes do estoque [GET]
+Lista os dados de um estoque de um produto com id externo.
+
++ Response 200 (application/json)
+
+        {
+            "gerenciado": true,
+            "id": 5135,
+            "produto": "/api/v1/produto/24/?id_externo=1",
+            "quantidade": 7,
+            "quantidade_reservada": 2,
+            "quantidade_disponivel": 5,
+            "resource_uri": "/api/v1/produto_estoque/1/",
+            "situacao_em_estoque": 5,
+            "situacao_sem_estoque": 15
+        }
+
+### Alterar estoque [PUT]
+Atualiza as informações do estoque para um produto com id externo.
+
++ Request (application/json)
+
+        {
+            "gerenciado": true,
+            "situacao_em_estoque": 5,
+            "situacao_sem_estoque": 15,
+            "quantidade": 7
+        }
+
++ Response 202 (application/json)
+
+        {
+            "gerenciado": true,
+            "id": 5135,
+            "produto": "/api/v1/produto/24/?id_externo=1",
+            "quantidade": 7,
+            "quantidade_reservada": 2,
+            "quantidade_disponivel": 5,
+            "resource_uri": "/api/v1/produto_estoque/1/",
+            "situacao_em_estoque": 5,
+            "situacao_sem_estoque": 15
+        }
+
+## Subconjunto de estoque [/produto_estoque/set/{estoque_id_1};{estoque_id_2};{estoque_id_3}]
+
++ Parameters
+    + estoque_id_1: 5135 (required, number) - ID de um estoque
+    + estoque_id_2: 3513 (optional, number) - ID de outro estoque
+    + estoque_id_3: 3515 (optional, number) - ID de outro estoque
+
+### Lista de estoques [GET]
+Lista o estoque de vários produtos ao mesmo tempo.
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "gerenciado": true,
+                    "id": 5135,
+                    "produto": "/api/v1/produto/1/",
+                    "quantidade": 7,
+                    "quantidade_reservada": 2,
+                    "quantidade_disponivel": 5,
+                    "resource_uri": "/api/v1/produto_estoque/1/",
+                    "situacao_em_estoque": 5,
+                    "situacao_sem_estoque": 15
+                },
+                {
+                    "gerenciado": true,
+                    "id": 3513,
+                    "produto": "/api/v1/produto/2/",
+                    "quantidade": 15,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 15,
+                    "resource_uri": "/api/v1/produto_estoque/2/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": -1
+                },
+                {
+                    "gerenciado": false,
+                    "id": 3515,
+                    "produto": "/api/v1/produto/3/",
+                    "quantidade": 10,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 10,
+                    "resource_uri": "/api/v1/produto_estoque/3/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": 0
+                }
+            ]
+        }
+
+## Subconjunto de estoque com id_externo [/produto_estoque/set/{estoque_id_1};{estoque_id_2};{estoque_id_3}?id_externo={id_externo}]
+
++ Parameters
+    + estoque_id_1: 5135 (required, number) - ID de um estoque
+    + estoque_id_2: 3513 (optional, number) - ID de outro estoque
+    + estoque_id_3: 3515 (optional, number) - ID de outro estoque
+    + id_externo: 1 (optional, number) - ID externo
+
+### Lista de estoques [GET]
+Lista o estoque de vários produtos ao mesmo tempo com id externo.
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "gerenciado": true,
+                    "id": 5135,
+                    "produto": "/api/v1/produto/21/?id_externo=1",
+                    "quantidade": 7,
+                    "quantidade_reservada": 2,
+                    "quantidade_disponivel": 5,
+                    "resource_uri": "/api/v1/produto_estoque/1/",
+                    "situacao_em_estoque": 5,
+                    "situacao_sem_estoque": 15
+                },
+                {
+                    "gerenciado": true,
+                    "id": 3513,
+                    "produto": "/api/v1/produto/22/?id_externo=1",
+                    "quantidade": 15,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 15,
+                    "resource_uri": "/api/v1/produto_estoque/2/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": -1
+                },
+                {
+                    "gerenciado": false,
+                    "id": 3515,
+                    "produto": "/api/v1/produto/23/?id_externo=1",
+                    "quantidade": 10,
+                    "quantidade_reservada": 0,
+                    "quantidade_disponivel": 10,
+                    "resource_uri": "/api/v1/produto_estoque/3/",
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": 0
+                }
+            ]
+        }
+
+# Group Preço
+
+Consulta e alteração de preço dos produtos
+
+## Preços [/produto_preco]
+
+### Listar todos os preços [GET]
+Lista o preço dos produtos.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": "/api/v1/produto_preco/?limit=20&offset=20",
+                "offset": 0,
+                "previous": null,
+                "total_count": 106
+            },
+            "objects": [
+                {
+                    "cheio": "160.0000",
+                    "custo": null,
+                    "id": 5,
+                    "produto": "/api/v1/produto/5/",
+                    "promocional": "140.0000",
+                    "resource_uri": "/api/v1/produto_preco/5/"
+                },
+                {
+                    "cheio": "158.0000",
+                    "custo": null,
+                    "id": 6,
+                    "produto": "/api/v1/produto/24/?id_externo=1",
+                    "promocional": null,
+                    "resource_uri": "/api/v1/produto_preco/6/"
+                },
+                {
+                    "cheio": "400.0000",
+                    "custo": null,
+                    "id": 7,
+                    "produto": "/api/v1/produto/7/",
+                    "promocional": null,
+                    "resource_uri": "/api/v1/produto_preco/7/"
+                },
+                ...
+            ]
+        }
+
+## Preço específico [/produto_preco/{produto_id}]
+
++ Parameters
+    + preco_id: 1 (required, number) - ID do preço desejado
+
+### Detalhes do preço [GET]
+Lista o preço de um produto específico.
+
++ Response 200 (application/json)
+
+        {
+            "cheio": "160.00",
+            "custo": "70.00",
+            "id": 1,
+            "produto": "/api/v1/produto/1/",
+            "promocional": "140.00",
+            "resource_uri": "/api/v1/produto_preco/1/"
+        }
+
+### Alterar preço [PUT]
+Atualiza o preco de um produto.
+
++ Request (application/json)
+
+        {
+            "cheio": 32.83,
+            "custo": 10.5,
+            "promocional": 20.0
+        }
+
++ Response 202 (application/json)
+
+        {
+            "cheio": "32.83",
+            "custo": "10.50",
+            "id": 1,
+            "produto": "/api/v1/produto/1/",
+            "promocional": "20.00",
+            "resource_uri": "/api/v1/produto_preco/1/"
+        }
+
+## Preço com id_externo [/produto_preco/{preco_id}?id_externo={id_externo}]
+
++ Parameters
+    + preco_id: 1 (required, number) - ID do preço desejado
+    + id_externo: 1 (optional, number) - ID externo
+
+### Detalhes do preço [GET]
+Lista o preço de um produto específico com id externo
+
++ Response 200 (application/json)
+
+        {
+            "cheio": "160.00",
+            "custo": "70.00",
+            "id": 1,
+            "produto": "/api/v1/produto/24/?id_externo=1",
+            "promocional": "140.00",
+            "resource_uri": "/api/v1/produto_preco/1/"
+        }
+
+### Alterar preço [PUT]
+Atualiza o preco de um produto usando id externo.
+
++ Request (application/json)
+
+        {
+            "cheio": 32.83,
+            "custo": 10.5,
+            "promocional": 20.0
+        }
+
++ Response 202 (application/json)
+
+        {
+            "cheio": "32.83",
+            "custo": "10.50",
+            "id": 1,
+            "produto": "/api/v1/produto/25/?id_externo=1",
+            "promocional": "20.00",
+            "resource_uri": "/api/v1/produto_preco/1/"
+        }
+
+## Subconjunto de preço [/produto_preco/set/{preco_id_1};{preco_id_2};{preco_id_3}]
+
++ Parameters
+    + preco_id_1: 5 (required, number) - ID de um preço
+    + preco_id_2: 6 (optional, number) - ID de outro preço
+    + preco_id_3: 7 (optional, number) - ID de outro preço
+
+### Lista de preços [GET]
+Lista o preço de vários produtos ao mesmo tempo.
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "cheio": "32.83",
+                    "custo": "10.50",
+                    "id": 5,
+                    "produto": "/api/v1/produto/5/",
+                    "promocional": "20.00",
+                    "resource_uri": "/api/v1/produto_preco/5/"
+                },
+                {
+                    "cheio": "158.00",
+                    "custo": null,
+                    "id": 6,
+                    "produto": "/api/v1/produto/6/",
+                    "promocional": null,
+                    "resource_uri": "/api/v1/produto_preco/6/"
+                },
+                {
+                    "cheio": "400.00",
+                    "custo": "350.00",
+                    "id": 7,
+                    "produto": "/api/v1/produto/7/",
+                    "promocional": null,
+                    "resource_uri": "/api/v1/produto_preco/7/"
+                }
+            ]
+        }
+
+## Subconjunto de preço com id_externo [/produto_preco/set/{preco_id_1};{preco_id_2};{preco_id_3}?id_externo={id_externo}]
+
++ Parameters
+    + preco_id_1: 5135 (required, number) - ID de um preço
+    + preco_id_2: 3513 (optional, number) - ID de outro preço
+    + preco_id_3: 3515 (optional, number) - ID de outro preço
+    + id_externo: 1 (optional, number) - ID externo
+
+### Lista de preços [GET]
+Lista o preço de vários produtos ao mesmo tempo com id externo.
+
++ Response 200 (application/json)
+
+        {
+            "objects": [
+                {
+                    "cheio": "32.83",
+                    "custo": "10.50",
+                    "id": 5,
+                    "produto": "/api/v1/produto/25/?id_externo=1",
+                    "promocional": "20.00",
+                    "resource_uri": "/api/v1/produto_preco/5/"
+                },
+                {
+                    "cheio": "158.00",
+                    "custo": null,
+                    "id": 6,
+                    "produto": "/api/v1/produto/26/?id_externo=1",
+                    "promocional": null,
+                    "resource_uri": "/api/v1/produto_preco/6/"
+                },
+                {
+                    "cheio": "400.00",
+                    "custo": "350.00",
+                    "id": 7,
+                    "produto": "/api/v1/produto/27/?id_externo=1",
+                    "promocional": null,
+                    "resource_uri": "/api/v1/produto_preco/7/"
+                }
+            ]
+        }
+
+# Group Produto
+
+Consulta, alteração e criação de produto na loja
+
+## Produtos [/produto]
+
+### Listar todos os produtos [GET]
+Lista todos produtos da loja de forma paginada. Para retornar a descrição é necessário passar /produto?description_html=1
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": "/api/v1/produto/?limit=20&offset=20",
+                "offset": 0,
+                "previous": null,
+                "total_count": 34
+            },
+            "objects": [
+                {
+                    "apelido": null,
+                    "id": 1065002,
+                    "id_externo": null;
+                    "nome": "Produto Normal",
+                    "resource_uri": "/api/v1/produto/1065002/",
+                    "sku": "prd-normal",
+                    "tipo": "normal",
+                    "url": "http://loja.lojaintegrada.com.br/produto/produto-normal.html"
+                },
+                {
+                    "apelido": null,
+                    "id": 1064999,
+                    "id_externo": null;
+                    "nome": "Produto Normal #2",
+                    "resource_uri": "/api/v1/produto/1064999/",
+                    "sku": "prd-normal-2",
+                    "tipo": "normal",
+                    "url": "http://loja.lojaintegrada.com.br/produto/produto-normal-2.html"
+                },
+                {
+                    "apelido": "bxcbvc",
+                    "id": 1064998,
+                    "id_externo": null;
+                    "nome": "Produto com atributos",
+                    "resource_uri": "/api/v1/produto/1064998/",
+                    "sku": "prd-atributo",
+                    "tipo": "atributo",
+                    "url": "http://loja.lojaintegrada.com.br/produto/produto-com-atributos.html"
+                },
+                {
+                    "apelido": null,
+                    "id": 1064998,
+                    "id_externo": 220;
+                    "nome": "Produto com id externo",
+                    "resource_uri": "/api/v1/produto/220/?id_externo=1",
+                    "sku": "prd-externo",
+                    "tipo": "normal",
+                    "url": "http://loja.lojaintegrada.com.br/produto/produto-com-id-externo.html"
+                },
+                ...
+            ]
+        }
+
+
+
+
+### Cadastrar novo produto Simples [POST]
+Produtos simples são produtos que não possuem variações. Para definir o tipo do produto é preciso inserir o valor **normal** na chave **tipo** do json enviado no POST.
+
+O campo **id_externo** é usado para passar um id que já exista, para o produto, em seu sistema. Assim, poderá ser realizado GET e PUT usando o seu id.
+
+O campo **categorias** deve ser uma lista de URIs para as categorias cadastradas.
+
++ Request (application/json)
+
+        {
+             "id_externo": null,
+             "sku": "prod-simples",
+             "mpn": null,
+             "ncm": null,
+             "nome": "Produto 666 Master Plus",
+             "descricao_completa": "<strong>Desctição HTML do produto</strong>",
+             "ativo": false,
+             "destaque": false,
+             "peso": 0.45,
+             "altura": 2,
+             "largura": 12,
+             "profundidade": 6,
+             "tipo": "normal",
+             "usado": false,
+             "categorias": [
+                "/api/v1/categoria/1492616/"
+             ],
+             "marca": null,
+             "removido": false
+
+        }
+
++ Response 201 (application/json)
+
+        {
+            "altura": 2,
+            "apelido": "produto-666-master-plus-2017-08-02-10-55-10",
+            "ativo": true,
+            "bloqueado": false,
+            "categorias": [
+                "/api/v1/categoria/1492616"
+            ],
+            "data_criacao": "2017-08-02T10:51:28.488744",
+            "data_modificacao": "2017-08-02T10:55:10.474951",
+            "descricao_completa": "<strong>Desctição HTML do produto</strong>",
+            "destaque": false,
+            "filhos": [],
+            "gtin": null,
+            "id": 19803787,
+            "id_externo": null,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": 12,
+            "marca": null,
+            "mpn": null,
+            "ncm": null,
+            "nome": "Produto 666 Master Plus",
+            "pai": null,
+            "peso": "0.45",
+            "profundidade": 6,
+            "removido": true,
+            "resource_uri": "/api/v1/produto/19803787",
+            "seo": "/api/v1/seo/15611631",
+            "sku": "prod-pai",
+            "tipo": "normal",
+            "url": "http://comicstorev.lojaintegrada.com.br/produto/produto-666-master-plus-2017-08-02-10-55-10.html",
+            "url_video_youtube": null,
+            "usado": false,
+            "variacoes": []
+        }
+
+## Criar produtos com variação [/produto]
+Produtos com variações são compostos pelo produto pai, que agrupa as variações e por fim, os produtos filhos que representam as variações propriamente ditas.
+Após criar o produto pai é preciso criar os produtos filhos vinculando-os ao pai - o que será exemplificado na próximas sessões.
+
+
+### Cadastrar novo Produto Pai  [POST]
+
+Note que para criar um produto Pai, a chave **tipo** deve ser preenchida com o valor **atributo**.
+
++ Request (application/json)
+
+        {
+          "id_externo": null,
+          "sku": "prod-pai",
+          "mpn": null,
+          "ncm": null,
+          "nome": "Produto 666 Master Plus",
+          "descricao_completa": "<strong>Desctição HTML do produto</strong>",
+          "ativo": false,
+          "destaque": false,
+          "peso": 0.45,
+          "altura": 2,
+          "largura": 12,
+          "profundidade": 6,
+          "tipo": "atributo",
+          "usado": false,
+          "grades":[
+              "/api/v1/grades/8945",
+              "/api/v1/grade/3005"
+          ],
+          "categorias": [
+              "/api/v1/categoria/1492616/"
+          ],
+          "marca": null,
+          "removido": false
+
+        }
+
++ Response 201 (application/json)
+
+        {
+            "altura": 2,
+            "apelido": "produto-666-master-plus-2017-08-02-10-55-10",
+            "ativo": false,
+            "bloqueado": false,
+            "categorias": [
+                "/api/v1/categoria/1492616"
+            ],
+            "data_criacao": "2017-08-02T10:51:28.488744",
+            "data_modificacao": "2017-08-02T10:55:10.474951",
+            "descricao_completa": "<strong>Desctição HTML do produto</strong>",
+            "destaque": false,
+            "filhos": [],
+            "grades": [
+                "/api/v1/grades/8945",
+                "/api/v1/grade/3005"
+            ],
+            "gtin": null,
+            "id": 19803787,
+            "id_externo": null,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": 12,
+            "marca": null,
+            "mpn": null,
+            "ncm": null,
+            "nome": "Produto 666 Master Plus",
+            "pai": null,
+            "peso": "0.450000000000000011102230246251565404236316680908203125",
+            "profundidade": 6,
+            "removido": false,
+            "resource_uri": "/api/v1/produto/19803787",
+            "seo": "/api/v1/seo/15611631",
+            "sku": "prod-pai",
+            "tipo": "atributo",
+            "url": "http://comicstorev.lojaintegrada.com.br/produto/produto-666-master-plus-2017-08-02-10-55-10.html",
+            "url_video_youtube": null,
+            "usado": false,
+            "variacoes": []
+        }
+
+### Cadastrar novo Produto Filho [POST]
+Para criar um produto filho é preciso preencher na chave **tipo** o valor **atributo_opcao**.
+
+Perceba que não é necessário inserir atributos como **destaque, descricao_completa e usado**.
+
++ Request (application/json)
+
+        {
+          "id_externo": null,
+          "sku": "prod-filho-1",
+          "mpn": null,
+          "ncm": null,
+          "nome": "Produto 666 Master Plus",
+          "ativo": false,
+          "peso": 0.45,
+          "altura": 2,
+          "largura": 12,
+          "profundidade": 6,
+          "pai": "/api/v1/produto/19808215",
+          "tipo": "atributo_opcao",
+          "variacoes":[
+             "/api/v1/grade/8945/variacao/37066",
+             "/api/v1/grade/3005/variacao/1994"
+          ]
+
+
+        }
++ Response 201 (application/json)
+
+        {
+            "altura": 2,
+            "apelido": "produto-666-master-plus-2017-08-02-13-48-11",
+            "ativo": false,
+            "bloqueado": false,
+            "categorias": [],
+            "data_criacao": "2017-08-02T13:48:11.404222",
+            "data_modificacao": "2017-08-02T13:48:11.404243",
+            "descricao_completa": null,
+            "destaque": false,
+            "gtin": null,
+            "id": 19808299,
+            "id_externo": null,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": 12,
+            "marca": null,
+            "mpn": null,
+            "ncm": null,
+            "nome": "Produto 666 Master Plus",
+            "pai": "/api/v1/produto/19808215",
+            "peso": "0.450000000000000011102230246251565404236316680908203125",
+            "profundidade": 6,
+            "removido": false,
+            "resource_uri": "/api/v1/produto/19808299",
+            "seo": "/api/v1/seo/None",
+            "sku": "prod-filho-1",
+            "tipo": "atributo_opcao",
+            "url": "http://comicstorev.lojaintegrada.com.br/produto/produto-666-master-plus-2017-08-02-13-48-11.html",
+            "url_video_youtube": null,
+            "usado": false,
+            "variacoes": [
+                "/api/v1/grade/8945/variacao/37066"
+                "/api/v1/grade/3005/variacao/1994"
+            ]
+        }
+
+## Produtos filtrar por data [/produto/?data_modificacao__gte={datetime}]
+
++ Parameters
+    + datetime: `2014-04-04 10:20:00` (optional, string) - DATETIME no formato: 2014-04-04 10:20:00
+
+### Lista de produtos [GET]
+Lista todos produtos da loja que foram alterados depois de uma determinada data.
+
+Para usar o filtro você pode usar nos campos "**data_criacao**", "**data_modificacao**", "**sku**", "**ativo**" e "**removido**", com os seguintes sufixos disponíveis para os campos do tipo data:
+ * `(campo)__lt` - Filtro de comparação "menor que".
+ * `(campo)__lte` - Filtro de comparação "menor que ou igual".
+ * `(campo)__gt` - Filtro de comparação "maior que".
+ * `(campo)__gte` - Filtro de comparação "maior que ou igual".
+ * Ou pode usar campo=data, desta forma a comparação será da data exata.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 10,
+                "offset": 0,
+                "totalCount": 1
+            },
+            "response": [
+                {
+                    "id": 1,
+                    "id_externo": null;
+                    "pai": null,
+                    "sku": "prd-333",
+                    "referencia_externa": "1",
+                    "nome": "Produto 333 Master Plus",
+                    "slug": "Produto 333"
+                },
+                {
+                    "id": 2,
+                    "id_externo": null;
+                    "pai": null,
+                    "sku": "prd-666",
+                    "referencia_externa": "33",
+                    "nome": "Produto 333 Master Plus",
+                    "slug": "Produto 333"
+                }
+                {
+                    "id": 3,
+                    "id_externo": 220;
+                    "pai": null,
+                    "sku": "prd-externo",
+                    "referencia_externa": null,
+                    "nome": "Produto com id externo",
+                    "slug": "produto-externo"
+                },
+            ],
+            "notification": {
+                "code": 200,
+                "message": "OK"
+            }
+        }
+
+## Produto específico [/produto/{produto_id}/{?descricao_completa}]
+
++ Parameters
+    + produto_id: 1064972 (required, number) - ID do produto
+
+### Detalhes do produto [GET]
+Lista os dados de um produtos específico. (O parametro "descricao_completa=1" mostra os campos de descrição).
+
++ Parameters
+    + descricao_completa: 1 (optional, boolean) - Exibir ou não a descrição completa do produto
+
++ Response 200 (application/json)
+
+        {
+            "altura": null,
+            "apelido": "produto-normal",
+            "ativo": false,
+            "bloqueado": false,
+            "categorias": [],
+            "data_criacao": "2014-01-06T23:13:59.337504",
+            "data_modificacao": "2014-01-06T23:13:59.337572",
+            "descricao_completa": "Produto normal bem legal.",
+            "destaque": false,
+            "id": 1064972,
+            "id_externo": null,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": null,
+            "marca": null,
+            "nome": "Produto normal",
+            "pai": null,
+            "peso": null,
+            "profundidade": null,
+            "removido": false,
+            "ncm": null,
+            "gtin": null,
+            "mpn": null,
+            "resource_uri": "/api/v1/produto/1064972/",
+            "sku": "CTU7ZMWHB",
+            "seo": "/api/v1/seo/1",
+            "tipo": "normal",
+            "url": "http://loja.lojaintegrada.com.br/produto/produto-normal.html",
+            "url_video_youtube": "",
+            "usado": false
+        }
+
+### Alterar produto [PUT]
+Atualiza um produto na loja. Para fazer a atualização é necessário enviar todos os campos do produto.
+
++ Request (application/json)
+
+        {
+            "altura": null,
+            "apelido": "produto-normal",
+            "ativo": false,
+            "bloqueado": false,
+            "categorias": [],
+            "data_criacao": "2014-01-06T23:13:59.337504",
+            "data_modificacao": "2014-04-04T13:43:20.239138",
+            "destaque": false,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": null,
+            "marca": null,
+            "nome": "Produto normal bem Legal",
+            "pai": null,
+            "peso": null,
+            "profundidade": null,
+            "ncm": null,
+            "gtin": null,
+            "mpn": null,
+            "removido": false,
+            "sku": "CTU7ZMWHB",
+            "tipo": "normal",
+            "url_video_youtube": "",
+            "usado": false
+        }
+
++ Response 202 (application/json)
+
+        {
+            "altura": null,
+            "apelido": "produto-normal",
+            "ativo": false,
+            "bloqueado": false,
+            "categorias": [],
+            "data_criacao": "2014-01-06T23:13:59.337504",
+            "data_modificacao": "2014-04-04T13:43:20.239138",
+            "destaque": false,
+            "id": 1064972,
+            "id_externo": null,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": null,
+            "marca": null,
+            "nome": "Produto normal bem Legal",
+            "pai": null,
+            "peso": null,
+            "profundidade": null,
+            "removido": false,
+            "ncm": null,
+            "gtin": null,
+            "mpn": null,
+            "resource_uri": "/api/v1/produto/1064972/",
+            "sku": "CTU7ZMWHB",
+            "seo": "/api/v1/seo/1",
+            "tipo": "normal",
+            "url": "http://loja.lojaintegrada.com/produto/produto-normal.html",
+            "url_video_youtube": "",
+            "usado": false
+        }
+
+## Produto com id_externo [/produto/{produto_id}/?id_externo={id_externo}&descricao_completa={descricao_completa}]
+
++ Parameters
+    + produto_id: 1064972 (required, number) - ID do produto
+    + id_externo: 1 (optional, number) - ID externo
+    + descricao_completa: 1 (optional, boolean) - Exibir ou não a descrição completa do produto
+
+### Detalhes do produto [GET]
+Lista os dados de um produtos específico usando o **id_externo** para a busca. (O parametro "descricao_completa=1" mostra os campos de descrição).
+
++ Response 200 (application/json)
+
+        {
+            "altura": null,
+            "apelido": null,
+            "ativo": false,
+            "bloqueado": false,
+            "categorias": [],
+            "data_criacao": "2014-01-06T23:13:59.337504",
+            "data_modificacao": "2014-01-06T23:13:59.337572",
+            "descricao_completa": "Produto com id externo bem legal.",
+            "destaque": false,
+            "id": 1064972,
+            "id_externo": 220,
+            "imagem_principal": null,
+            "imagens": [],
+            "largura": null,
+            "marca": null,
+            "nome": "Produto com id externo",
+            "pai": null,
+            "peso": null,
+            "profundidade": null,
+            "removido": false,
+            "ncm": null,
+            "gtin": null,
+            "mpn": null,
+            "resource_uri": "/api/v1/produto/220/?id_externo=1",
+            "sku": "prod-externo",
+            "seo": "/api/v1/seo/1",
+            "tipo": "normal",
+            "url": "http://loja.lojaintegrada.com.br/produto/produto-com-id-externo.html",
+            "url_video_youtube": "",
+            "usado": false
+        }
+
+
+
+# Group Imagens do produto
+
+Consulta e cadastro de imagens de um produto
+
+## Imagens [/produto_imagem/{?produto}]
+
+### Listar imagens do produto [GET]
+Lista todas as imagens de um produto.
+
++ Parameters
+    + produto: 10587992 (required, number) - ID de um produto
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 1
+            },
+            "objects": [
+                {
+                    "caminho": "0/2/produto/105879928964a45f6b.jpg",
+                    "id": 10805529,
+                    "mime": "image/jpeg",
+                    "posicao": null,
+                    "principal": true,
+                    "produto": "/api/v1/produto/10587992",
+                    "resource_uri": "/api/v1/produto_imagem/10805529"
+                }
+            ]
+        }
+
+### Cadastrar nova imagem [POST]
+Cria uma nova imagem para o produto.
+
++ Request (application/json)
+
+        {
+            "imagem_url": "https://g-design.storage.googleapis.com/production/v6/assets/g-logotype-poster.png",
+            "produto": "/api/v1/produto/10587992",
+            "principal": true,
+            "posicao": 0,
+            "mime": "image/jpeg"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "caminho": "0/2/produto/105879926ff0a4df38.jpg",
+            "id": 10804901,
+            "imagem_url": "https://g-design.storage.googleapis.com/production/v6/assets/g-logotype-poster.png",
+            "mime": "image/jpeg",
+            "posicao": 0,
+            "principal": true,
+            "produto": "/api/v1/produto/10587992",
+            "resource_uri": "/api/v1/produto_imagem/10804901"
+        }
+
+## Imagem específica [/produto_imagem/{imagem_id}]
+
++ Parameters
+    + imagem_id: 10804901 (required, number) - ID da imagem
+
+### Detalhes da imagem [GET]
+Visualiza as informações de uma imagem.
+
++ Response 200 (application/json)
+
+        {
+            "caminho": "0/2/produto/105879926ff0a4df38.jpg",
+            "id": 10804901,
+            "mime": "image/jpeg",
+            "posicao": 0,
+            "principal": true,
+            "produto": "/api/v1/produto/10587992",
+            "resource_uri": "/api/v1/produto_imagem/10804901"
+        }
+
+# Group SEO
+
+Adicione ou altere os parâmetro de SEO dos produtos e categorias. Tags disponíveis: **title**, **keyword** e **description**
+
+## SEO [/seo]
+
+### Listar as configurações de SEO [GET]
+Lista todas as configurações de SEO disponíveis.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 2
+            },
+            "objects": [
+                {
+                    "base_uri": "/api/v1/produto/12345",
+                    "description": "Esta é a descrição do meu produto",
+                    "id": 1,
+                    "keyword": "key1, key2, key3",
+                    "resource_uri": "/api/v1/seo/1",
+                    "title": "Titulo do produto"
+                },
+                {
+                    "base_uri": "/api/v1/categoria/543",
+                    "description": "Descrição da minha categoria",
+                    "id": 2,
+                    "keyword": "key, key2",
+                    "resource_uri": "/api/v1/seo/2",
+                    "title": "Minha Categoria"
+                }
+            ]
+        }
+
+## Configuração de SEO específica [/seo/{seo_id}]
+
++ Parameters
+    + seo_id: 1 (required, number) - ID da configuração de SEO desejada
+
+### Detalhes do SEO [GET]
+Detalha os parâmetros de SEO de um cadastro específico
+
++ Response 200 (application/json)
+
+        {
+            "base_uri": "/api/v1/produto/12345",
+            "description": "Esta é a descrição do meu produto",
+            "id": 1,
+            "keyword": "key1, key2, key3",
+            "resource_uri": "/api/v1/seo/1",
+            "title": "Titulo do produto"
+        }
+
+### Alterar configuração de SEO [PUT]
+Atualiza os parâmetros de SEO de um cadastro específico
+
++ Request (application/json)
+
+        {
+            "description": "Outra descrição para meu produto",
+            "keyword": "word1, word2, word3",
+            "title": "Novo titulo do produto"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "base_uri": "/api/v1/produto/12345",
+            "description": "Outra descrição para meu produto",
+            "id": 1,
+            "keyword": "word1, word2, word3",
+            "resource_uri": "/api/v1/seo/1",
+            "title": "Novo titulo do produto"
+        }
+
+# Group Cliente
+
+Consulta e cadastro de clientes na loja
+
+## Clientes [/cliente]
+
+### Listar todos os clientes [GET]
+
+Lista todos os clientes da loja.
+
+**Ordenação**: */cliente?order_by=data_modificacao*
+
+**order_by**: Valores aceitos: "**data_modificacao**" ou "**-data_modificacao**"
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 10,
+                "offset": 0,
+                "totalCount": 1
+            },
+            "response": [
+                {
+                    "id": 1,
+                    "email": "joao@exemplo.com.br",
+                    "nome": "João Exemplo",
+                    "tipo": "PF",
+                    "resource_uri": "/api/v1/cliente/1/"
+                },
+                {
+                    "id": 2,
+                    "email": "joana@exemplo.com.br",
+                    "nome": "Joana Exemplar",
+                    "tipo": "PJ",
+                    "resource_uri": "/api/v1/cliente/2/"
+                }
+            ],
+            "notification": {
+                "code": 200,
+                "message": "OK"
+            }
+        }
+
+### Cadastrar novo cliente [POST]
+Cria um novo cliente na loja.
+
+ps: Não é possível inserir mais de um endereço no cadastro de
+um novo cliente
+
++ Request (application/json)
+
+        {
+            "email": "joao@exemplo.com.br",
+            "nome": "João Exemplo",
+            "sexo": "m",
+            "aceita_newsletter": true,
+            "telefone_principal": "(11) 3333-4444",
+            "telefone_comercial": "(11) 4062-0137",
+            "telefone_celular": "(11) 99999-8888",
+            "grupo_id": 1,
+            "tipo": "PF",
+            "cpf": "373.633.371-44",
+            "rg": "123456-7",
+            "razao_social": null,
+            "cnpj": null,
+            "ie": null,
+            "enderecos": [
+                {
+                    "endereco": "Rua das Flores",
+                    "numero": "123",
+                    "complemento": "Apartamento 32",
+                    "bairro": "Freg. do Ó",
+                    "cidade": "São Paulo",
+                    "estado": "SP",
+                    "cep": "02960-030",
+                    "pais": "BRA",
+                    "nome": "João Exemplo"
+                }
+            ],
+            "data_nascimento": "1980-01-01"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "aceita_newsletter": true,
+            "cnpj": null,
+            "cpf": "37363337144",
+            "data_criacao": "2014-04-04 13:48:49.689375",
+            "data_modificacao": "2014-04-04 13:48:49.689413",
+            "data_nascimento": "1980-01-01",
+            "email": "joao@exemplo.com.br",
+            "enderecos": [
+                {
+                    "bairro": "Freg. do Ó",
+                    "cep": "02960030",
+                    "cidade": "São Paulo",
+                    "cliente": "/api/v1/cliente/103265/",
+                    "complemento": "Apartamento 32",
+                    "endereco": "Rua das Flores",
+                    "estado": "SP",
+                    "id": 13144,
+                    "nome": "Jonatas Oliveira",
+                    "numero": "123",
+                    "pais": "Brasil",
+                    "principal": true,
+                    "referencia": "",
+                    "resource_uri": "/api/v1/endereco/102512/"
+                }
+            ],
+            "grupo": {
+                "id": 1,
+                "nome": "Padrão",
+                "padrao": true,
+                "resource_uri": "/api/v1/grupo/1/"
+            },
+            "id": 1,
+            "ie": null,
+            "newsletter": false,
+            "nome": "João Exemplo",
+            "razao_social": null,
+            "resource_uri": "/api/v1/cliente/1/",
+            "rg": "123456-7",
+            "sexo": "m",
+            "telefone_celular": "11999998888",
+            "telefone_comercial": "1140620137",
+            "telefone_principal": "1133334444",
+            "tipo": "PF"
+        }
+
+## Cliente específico [/cliente/{cliente_id}]
+
++ Parameters
+    + cliente_id: 1 (required, number) - ID do cliente
+
+### Detalhes do cliente [GET]
+Lista os dados de um clientes específico.
+
++ Response 200 (application/json)
+
+        {
+            "aceita_newsletter": true,
+            "cnpj": null,
+            "cpf": "37363337144",
+            "data_criacao": "2014-04-04 13:48:49.689375",
+            "data_modificacao": "2014-04-04 13:48:49.689413",
+            "data_nascimento": "1980-01-01",
+            "email": "joao@exemplo.com.br",
+            "enderecos": [
+                {
+                    "bairro": "Freg. do Ó",
+                    "cep": "02960030",
+                    "cidade": "São Paulo",
+                    "cliente": "/api/v1/cliente/103265/",
+                    "complemento": "Apartamento 32",
+                    "endereco": "Rua das Flores",
+                    "estado": "SP",
+                    "id": 13144,
+                    "nome": "Jonatas Oliveira",
+                    "numero": "123",
+                    "pais": "Brasil",
+                    "principal": true,
+                    "referencia": "",
+                    "resource_uri": "/api/v1/endereco/102512/"
+                }
+            ],
+            "grupo": {
+                "id": 1,
+                "nome": "Padrão",
+                "padrao": true,
+                "resource_uri": "/api/v1/grupo/1/"
+            },
+            "id": 1,
+            "ie": null,
+            "newsletter": false,
+            "nome": "João Exemplo",
+            "razao_social": null,
+            "resource_uri": "/api/v1/cliente/1/",
+            "rg": "123456-7",
+            "sexo": "m",
+            "telefone_celular": "11999998888",
+            "telefone_comercial": "1140620137",
+            "telefone_principal": "1133334444",
+            "tipo": "PF"
+        }
+
+# Group Grupo
+
+Consulta grupos de clientes da loja
+
+## Grupos [/grupo]
+
+### Listar todos os grupos [GET]
+Lista todos os grupos de clientes da loja (normal, vip, atacado, suspeito e etc).
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 1
+            },
+            "objects": [
+                {
+                    "id": 1,
+                    "nome": "Padrão",
+                    "padrao": true,
+                    "resource_uri": "/api/v1/grupo/1/"
+                }
+            ]
+        }
+
+## Grupo específico [/grupo/{grupo_id}]
+
++ Parameters
+    + grupo_id: 1 (required, number) - ID do grupo
+
+### Detalhes do grupo [GET]
+Lista os dados de um  grupos específico.
+
++ Response 200 (application/json)
+
+        {
+            "id": 1,
+            "nome": "Padrão",
+            "padrao": true,
+            "resource_uri": "/api/v1/grupo/1/"
+        }
+
+# Group Banco
+
+Consulta bancos disponíveis na loja
+
+## Bancos [/banco]
+
+### Listar todos os bancos [GET]
+Lista todos os bancos disponíveis no sistema.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 8
+            },
+            "objects": [
+                {
+                    "codigo": "237",
+                    "id": 1,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/banco-bradesco-logo.png",
+                    "nome": "Bradesco",
+                    "resource_uri": "/api/v1/banco/1/"
+                },
+                {
+                    "codigo": "341",
+                    "id": 2,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/banco-itau-logo.png",
+                    "nome": "Banco Ita\u00fa",
+                    "resource_uri": "/api/v1/banco/2/"
+                },
+                {
+                    "codigo": "399",
+                    "id": 3,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/banco-hsbc-logo.png",
+                    "nome": "HSBC",
+                    "resource_uri": "/api/v1/banco/3/"
+                },
+                ...
+            ]
+        }
+
+## Banco específico [/banco/{banco_id}]
+
++ Parameters
+    + banco_id: 1 (required, number) - ID do banco
+
+### Detalhes do banco [GET]
+Lista os dados de um banco específico.
+
++ Response 200 (application/json)
+
+        {
+            "codigo": "237",
+            "id": 1,
+            "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/banco-bradesco-logo.png",
+            "nome": "Bradesco",
+            "resource_uri": "/api/v1/banco/1/"
+        }
+
+# Group Pagamento
+
+Consulta formas de pagamento disponíveis na loja
+
+## Pagamentos [/pagamento]
+
+### Listar todos os pagamentos [GET]
+Lista todas as formas de pagamento disponíveis.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 6
+            },
+            "objects": [
+                {
+                    "codigo": "pagseguro",
+                    "id": 1,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/pagseguro-logo.png",
+                    "nome": "PagSeguro",
+                    "resource_uri": "/api/v1/pagamento/1/"
+                },
+                {
+                    "codigo": "pagamento_digital",
+                    "id": 2,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/pagamento_digital-logo.png",
+                    "nome": "Bcash",
+                    "resource_uri": "/api/v1/pagamento/2/"
+                },
+                {
+                    "codigo": "paypal",
+                    "id": 3,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/paypal-logo.png",
+                    "nome": "PayPal",
+                    "resource_uri": "/api/v1/pagamento/3/"
+                },
+                ...
+            ]
+        }
+
+## Pagamento específico [/pagamento/{pagamento_id}]
+
++ Parameters
+    + pagamento_id: 1 (required, number) - ID da forma de pagamento
+
+### Detalhes do pagamento [GET]
+Detalha uma forma de pagamento.
+
++ Response 200 (application/json)
+
+        {
+            "codigo": "pagseguro",
+            "id": 1,
+            "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/pagseguro-logo.png",
+            "nome": "PagSeguro",
+            "resource_uri": "/api/v1/pagamento/1/"
+        }
+
+# Group Envio
+
+Consulta formas de envio disponíveis na loja
+
+## Envios [/envio]
+
+### Listar todos os envios [GET]
+Lista todas as formas de envio disponíveis na loja.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 5
+            },
+            "objects": [
+                {
+                    "codigo": "sedex",
+                    "id": 1,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-envio/sedex-logo.png",
+                    "nome": "SEDEX",
+                    "resource_uri": "/api/v1/envio/1/",
+                    "tipo": "correios_api"
+                },
+                {
+                    "codigo": "pac",
+                    "id": 2,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-envio/pac-logo.png",
+                    "nome": "PAC",
+                    "resource_uri": "/api/v1/envio/2/",
+                    "tipo": "correios_api"
+                },
+                {
+                    "codigo": "e_sedex",
+                    "id": 3,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-envio/e_sedex-logo.png",
+                    "nome": "e-SEDEX",
+                    "resource_uri": "/api/v1/envio/3/",
+                    "tipo": "correios_api"
+                },
+                {
+                    "codigo": "motoboy",
+                    "id": 194,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-envio/motoboy-logo.png",
+                    "nome": "Motoboy",
+                    "resource_uri": "/api/v1/envio/194/",
+                    "tipo": "faixa_cep"
+                },
+                {
+                    "codigo": "transportadora",
+                    "id": 195,
+                    "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-envio/transportadora-logo.png",
+                    "nome": "Transportadora",
+                    "resource_uri": "/api/v1/envio/195/",
+                    "tipo": "faixa_cep"
+                }
+            ]
+        }
+
+## Envio específico [/envio/{envio_id}]
+
++ Parameters
+    + envio_id: 1 (required, number) - ID da forma de envio
+
+### Detalhes do envio [GET]
+Detalha uma forma de envio.
+
++ Response 200 (application/json)
+
+        {
+            "codigo": "sedex",
+            "id": 1,
+            "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-envio/sedex-logo.png",
+            "nome": "SEDEX",
+            "resource_uri": "/api/v1/envio/1/",
+            "tipo": "correios_api"
+        }
+
+# Group Situações do Pedido
+
+Consulta formas de envio disponíveis na loja
+
+## Situações [/situacao]
+
+### Listar todas as situações [GET]
+Lista todas as situações disponíveis.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 11
+            },
+            "objects": [
+                {
+                    "aprovado": false,
+                    "cancelado": false,
+                    "codigo": "aguardando_pagamento",
+                    "final": false,
+                    "id": 2,
+                    "nome": "Aguardando Pagamento",
+                    "notificar_comprador": true,
+                    "padrao": false,
+                    "resource_uri": "/api/v1/situacao/2/"
+                },
+                {
+                    "aprovado": false,
+                    "cancelado": true,
+                    "codigo": "pagamento_devolvido",
+                    "final": true,
+                    "id": 7,
+                    "nome": "Pagamento devolvido",
+                    "notificar_comprador": true,
+                    "padrao": false,
+                    "resource_uri": "/api/v1/situacao/7/"
+                },
+                {
+                    "aprovado": false,
+                    "cancelado": false,
+                    "codigo": "pagamento_em_analise",
+                    "final": false,
+                    "id": 3,
+                    "nome": "Pagamento em an\u00e1lise",
+                    "notificar_comprador": true,
+                    "padrao": false,
+                    "resource_uri": "/api/v1/situacao/3/"
+                },
+                ...
+            ]
+        }
+
+## Situação específica [/situacao/pedido/{pedido_id}]
+
++ Parameters
+    + pedido_id: 1 (required, number) - ID do pedido
+
+### Situação do pedido [GET]
+Lista a situação de um pedido específico.
+
++ Response 200 (application/json)
+
+        {
+            "aprovado": false,
+            "cancelado": false,
+            "codigo": "pedido_efetuado",
+            "final": false,
+            "id": 9,
+            "nome": "Pedido efetuado",
+            "notificar_comprador": true,
+            "padrao": true,
+            "pedido": "/api/v1/pedido/1/",
+            "resource_uri": "/api/v1/situacao/9/"
+        }
+
+### Alterar situação do pedido [PUT]
+Atualiza a situação de um pedido específico. Use **GET** em  **/api/v1/situacao/** para conhecer os valores possíveis para **codigo**.
+
++ Request (application/json)
+
+        {
+            "codigo": "pedido_enviado"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "aprovado": true,
+            "cancelado": false,
+            "codigo": "pedido_enviado",
+            "final": true,
+            "id": 11,
+            "nome": "Pedido enviado",
+            "notificar_comprador": true,
+            "padrao": false,
+            "pedido": "/api/v1/pedido/1/",
+            "resource_uri": "/api/v1/situacao/11/"
+        }
+
+## Histórico de situações [/situacao_historico]
+
+### Listar histórico de situações [GET]
+Listagem do histórico de alteração da situação de um pedido.
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 1
+            },
+            "objects": [
+                {
+                    "alterado_por": "usuario",
+                    "alterado_por_nome": "Loja Integrada",
+                    "data": "2016-07-15T16:28:51.800848",
+                    "id": 1,
+                    "numero": 2,
+                    "resource_uri": "/api/v1/situacao_historico/1",
+                    "situacao": {
+                        "aprovado": true,
+                        "cancelado": false,
+                        "codigo": "pedido_pago",
+                        "final": false,
+                        "id": 4,
+                        "nome": "Pedido Pago",
+                        "notificar_comprador": true,
+                        "padrao": false,
+                        "resource_uri": "/api/v1/situacao/4"
+                    },
+                    "situacao_anterior": {
+                        "aprovado": false,
+                        "cancelado": false,
+                        "codigo": "pedido_efetuado",
+                        "final": false,
+                        "id": 9,
+                        "nome": "Pedido Efetuado",
+                        "notificar_comprador": false,
+                        "padrao": true,
+                        "resource_uri": "/api/v1/situacao/9"
+                    }
+                },
+            ]
+        }
+
+## Histórico de situações específica [/situacao_historico/search/?numero={pedido_id}]
+
++ Parameters
+    + pedido_id: 2 (required, number) - ID do pedido
+
+### Histórico de situações do pedido [GET]
+Busca situações do pedido pelo número do pedido (?numero=) ou pelo id_externo (?id_externo=).
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 3
+            },
+            "objects": [
+                {
+                    "alterado_por": "usuario",
+                    "alterado_por_nome": "Loja Integrada",
+                    "data": "2016-07-15T16:28:51.800848",
+                    "id": 1,
+                    "numero": 2,
+                    "resource_uri": "/api/v1/situacao_historico/1",
+                    "situacao": {
+                        "aprovado": true,
+                        "cancelado": false,
+                        "codigo": "pedido_pago",
+                        "final": false,
+                        "id": 4,
+                        "nome": "Pedido Pago",
+                        "notificar_comprador": true,
+                        "padrao": false,
+                        "resource_uri": "/api/v1/situacao/4"
+                    },
+                    "situacao_anterior": {
+                        "aprovado": false,
+                        "cancelado": false,
+                        "codigo": "pedido_efetuado",
+                        "final": false,
+                        "id": 9,
+                        "nome": "Pedido Efetuado",
+                        "notificar_comprador": false,
+                        "padrao": true,
+                        "resource_uri": "/api/v1/situacao/9"
+                    }
+                },
+                {
+                    "alterado_por": "usuario",
+                    "alterado_por_nome": "Loja Integrada",
+                    "data": "2016-07-18T14:19:42.871852",
+                    "id": 4,
+                    "numero": 2,
+                    "resource_uri": "/api/v1/situacao_historico/4",
+                    "situacao": {
+                        "aprovado": false,
+                        "cancelado": true,
+                        "codigo": "pedido_cancelado",
+                        "final": true,
+                        "id": 8,
+                        "nome": "Pedido Cancelado",
+                        "notificar_comprador": true,
+                        "padrao": false,
+                        "resource_uri": "/api/v1/situacao/8"
+                    },
+                    "situacao_anterior": {
+                        "aprovado": true,
+                        "cancelado": false,
+                        "codigo": "pedido_pago",
+                        "final": false,
+                        "id": 4,
+                        "nome": "Pedido Pago",
+                        "notificar_comprador": true,
+                        "padrao": false,
+                        "resource_uri": "/api/v1/situacao/4"
+                    }
+                },
+                {
+                    "alterado_por": "usuario",
+                    "alterado_por_nome": "Loja Integrada",
+                    "data": "2016-07-18T14:19:55.586986",
+                    "id": 5,
+                    "numero": 2,
+                    "resource_uri": "/api/v1/situacao_historico/5",
+                    "situacao": {
+                        "aprovado": true,
+                        "cancelado": false,
+                        "codigo": "pedido_pago",
+                        "final": false,
+                        "id": 4,
+                        "nome": "Pedido Pago",
+                        "notificar_comprador": true,
+                        "padrao": false,
+                        "resource_uri": "/api/v1/situacao/4"
+                    },
+                    "situacao_anterior": {
+                        "aprovado": false,
+                        "cancelado": true,
+                        "codigo": "pedido_cancelado",
+                        "final": true,
+                        "id": 8,
+                        "nome": "Pedido Cancelado",
+                        "notificar_comprador": true,
+                        "padrao": false,
+                        "resource_uri": "/api/v1/situacao/8"
+                    }
+                }
+            ]
+        }
+
+
+
++ Response 201 (application/json)
+
+        {
+            "erros": [],
+            "fretes": [
+                {
+                    "cep_origem": "01301000",
+                    "codigo_contrato": null,
+                    "codigo_servico": "40010",
+                    "entrega_domiciliar": true,
+                    "entrega_sabado": true,
+                    "envio_id": "/api/v1/envio/1/",
+                    "erro": "0",
+                    "msg_erro": null,
+                    "nome": "SEDEX",
+                    "nome_codigo_servico": "sedex",
+                    "nome_servico": "SEDEX, sem contrato",
+                    "prazo_entrega": 1,
+                    "valor": "13.30",
+                    "valor_aviso_recebimento": "0.00",
+                    "valor_mao_propria": "0.00",
+                    "valor_valor_declarado": "0.00"
+                }
+            ]
+        }
+
+# Group Pedido
+
+
+## Buscar pedidos [/pedido/search/?since_numero={pedido_id}&situacao_id={situacao_id}&pagamento_id={pagamento_id}&limit={limit}]
+
++ Parameters
+    + pedido_id: 345 (optional, number) - Pedidos mais recentes que o fornecido
+    + situacao_id: 1 (optional, number) - ID de uma situação
+    + pagamento_id: 1 (optional, number) - ID de uma forma de pagamento
+    + limit: 10 (optional, number) - Limite de pedidos listados (máximo = 100)
+
+### Listar pedidos [GET]
+Busca por pedidos de acordo com os seguintes filtros:
+
+* **since_numero**: pedidos com número igual ou maior ao especificado.
+* **since_atualizado**: pedidos que foram atualizados a partir da data e hora especificada. A data deve estar no formato AAAA-MM-DDTHH:MM:SS (ex: ?since_atualizado=2016/09/13T08:30:22), onde a hora é opcional.
+* **cliente_id**: pedidos do cliente com o id especificado.
+* **pagamento_id**: pedidos que utilizaram a forma de pagamento com o id especificado.
+* **situacao_id**: pedidos que estão na situação especificada.
+* **since_criado**: pedidos que foram criados a partir da data e hora especificada. A data deve estar no formato AAAA-MM-DDTHH:MM:SS (ex: ?since_criado=2016/09/13T08:30:22), onde a hora é opcional.
+* **until_criado**: pedidos que foram criados antes da data e hora especificada. A data deve estar no formato AAAA-MM-DDTHH:MM:SS (ex: ?until_criado=2016/09/13T08:30:22), onde a hora é opcional.
+
+Para conhecer os ids de **pagamento**, faça um **GET** em **/api/v1/pagamento/**
+
+Para conhecer os ids de **situacao**, faça um **GET** em **/api/v1/situacao/**
+
+Os seguintes parâmetros podem ser usados para paginação:
+
+* **limit**: indica a quantidade de pedidos por página (o máximo aceito é 100)
+* **offset**: indica a posição do primeiro pedido, na ordem, para o resultado. offset=10 indica que o primeiro pedido do resultado será o da posição 10 na ordem.
+
+O GET mostra como filtra por **situação**, **pagamento** e a partir do **pedido número** 345:
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 10
+                "next": "/api/v1/pedido/?limit=10&offset=10&since_numero=345&situacao_id=1&pagamento_id=1"
+                "offset": 0
+                "previous": null
+                "total_count": 1
+            },
+            "response": [
+                {
+                    "id": 1,
+                    "numero": 345,
+                    "cliente_id": 1,
+                    "valor_subtotal": 100.10,
+                    "valor_envio": 10.00,
+                    "valor_desconto": 5.00,
+                    "valor_total": 105.10,
+                    "data_criacao": "2013-01-01 00:00:00",
+                    "data_modificacao": "2013-01-01 00:00:00",
+                    "data_expiracao": "2013-01-10 00:00:00",
+                }
+            ],
+            "notification": {
+                "code": 200,
+                "message": "OK"
+            }
+        }
+
+
+
+## Pedido específico [/pedido/{pedido_id}]
+
++ Parameters
+    + pedido_id: 544 (required, number) - ID do pedido
+
+### Detalhes do pedido [GET]
+Lista os dados de um pedido específico.
+
++ Response 200 (application/json)
+
+        {
+            "cliente": {
+                "cnpj": null,
+                "cpf": "123456789",
+                "data_nascimento": "1983-06-15",
+                "email": "teste@teste.com.br",
+                "id": 463,
+                "nome": "Usuario Teste",
+                "razao_social": null,
+                "resource_uri": "/api/v1/cliente/463",
+                "sexo": "m",
+                "telefone_celular": "1192212212",
+                "telefone_principal": ""
+            },
+            "cupom_desconto": null,
+            "utm_campaign": null,
+            "data_criacao": "2014-08-13T15:54:22.464351",
+            "data_expiracao": "2014-08-19T15:54:22.528647",
+            "data_modificacao": "2014-08-13T15:54:22.528812",
+            "endereco_entrega": {
+                "bairro": "MOINHO VELHO",
+                "cep": "02960333",
+                "cidade": "SAO PAULO",
+                "cnpj": null,
+                "complemento": "",
+                "cpf": "123456789",
+                "endereco": "RUA ABC",
+                "estado": "SP",
+                "id": 15447,
+                "ie": null,
+                "nome": "Fulano de Tal",
+                "numero": "51",
+                "pais": "Brasil",
+                "razao_social": null,
+                "referencia": "",
+                "rg": "123123",
+                "tipo": "PF"
+            },
+            "envios": [
+                {
+                    "data_criacao": "2014-08-13T15:54:22.474080",
+                    "data_modificacao": "2014-08-13T15:54:22.474112",
+                    "forma_envio": {
+                        "id": 1,
+                        "nome": "SEDEX"
+                    },
+                    "id": 334240,
+                    "objeto": null,
+                    "prazo": 2,
+                    "valor": "16.50"
+                }
+            ],
+            "itens": [
+                {
+                    "altura": null,
+                    "disponibilidade": 0,
+                    "id": 525882,
+                    "largura": null,
+                    "linha": 1,
+                    "nome": "Macbook Air 11 - Intel i5, 2GB RAM, 64GB SSD - Usado",
+                    "pedido": "/api/v1/pedido/544",
+                    "peso": "2.000",
+                    "preco_cheio": "2200.0000",
+                    "preco_custo": null,
+                    "preco_promocional": "2000.0000",
+                    "preco_subtotal": "2000.0000",
+                    "preco_venda": "2000.0000",
+                    "produto": "/api/v1/produto/15616",
+                    "produto_pai": null,
+                    "profundidade": null,
+                    "quantidade": "1.000",
+                    "sku": "AFP7VXH6X",
+                    "tipo": "normal"
+                }
+            ],
+            "numero": 544,
+            "pagamentos": [
+                {
+                    "forma_pagamento": {
+                        "codigo": "pagseguro",
+                        "configuracoes": {
+                            "ativo": true,
+                            "disponivel": true
+                        },
+                        "id": 1,
+                        "imagem": "http://cdn.awsli.com.br/static/admin/img/formas-de-pagamento/pagseguro-logo.png",
+                        "nome": "PagSeguro",
+                        "resource_uri": "/api/v1/pagamento/1"
+                    },
+                    "id": 334415,
+                    "identificador_id": null,
+                    "authorization_code": null,
+                    "pagamento_tipo": "bankInvoice",
+                    "bandeira": null,
+                    "mensagem_gateway": null,
+                    "codigo_retorno_gateway": null,
+                    "pagamento_banco": null,
+                    "transacao_id": null,
+                    "valor": null,
+                    "valor_pago": null
+                }
+            ],
+            "peso_real": "2.000",
+            "resource_uri": "/api/v1/pedido/544",
+            "situacao": {
+                "aprovado": false,
+                "cancelado": false,
+                "codigo": "pedido_efetuado",
+                "final": false,
+                "id": 9,
+                "nome": "Pedido efetuado",
+                "notificar_comprador": true,
+                "padrao": true,
+                "resource_uri": "/api/v1/situacao/9"
+            },
+            "valor_desconto": "0.00",
+            "valor_envio": "16.50",
+            "valor_subtotal": "2000.00",
+            "valor_total": "2016.50"
+        }
+
+### Alterar id_externo [PUT]
+Altera o id_externo do pedido.
+
++ Request (application/json)
+
+        {
+            "id_externo": 667
+        }
+
++ Response 202 (application/json)
+
+        {
+            "cliente": {
+                "cnpj": null,
+                "cpf": "41907312854",
+                "data_nascimento": null,
+                "email": "api@lojaintegrada.com.br",
+                "id": 1,
+                "nome": "Loja Integrada",
+                "razao_social": null,
+                "resource_uri": "/api/v1/cliente/1",
+                "sexo": "",
+                "telefone_celular": "11964478173",
+                "telefone_principal": ""
+            },
+            "cupom_desconto": null,
+            "data_criacao": "2016-06-30T15:07:35.677395",
+            "data_expiracao": "2016-07-25T17:31:53.369378",
+            "data_modificacao": "2016-07-19T17:31:53.369601",
+            "endereco_entrega": {
+                "bairro": "Bairro",
+                "cep": "00000000",
+                "cidade": "Cidade",
+                "cnpj": null,
+                "complemento": null,
+                "cpf": "00000000000",
+                "endereco": "Rua ...",
+                "estado": "SP",
+                "id": 1,
+                "ie": null,
+                "nome": "Loja Integrada",
+                "numero": "181",
+                "pais": "Brasil",
+                "razao_social": null,
+                "referencia": null,
+                "rg": null,
+                "tipo": "PF"
+            },
+            "envios": [
+                {
+                    "data_criacao": "2016-06-30T15:07:35.842442",
+                    "data_modificacao": "2016-06-30T15:07:35.842481",
+                    "forma_envio": {
+                        "id": 194,
+                        "nome": "Motoboy"
+                    },
+                    "id": 1,
+                    "objeto": null,
+                    "prazo": 1,
+                    "valor": "100.00"
+                }
+            ],
+            "id_externo": 667,
+            "itens": [
+                {
+                    "altura": 10,
+                    "disponibilidade": 0,
+                    "id": 1,
+                    "largura": 1,
+                    "linha": 1,
+                    "ncm": "",
+                    "nome": "Prod teste",
+                    "pedido": "?id_externo=1",
+                    "peso": "2.000",
+                    "preco_cheio": "20.0000",
+                    "preco_custo": null,
+                    "preco_promocional": null,
+                    "preco_subtotal": "20.0000",
+                    "preco_venda": "20.0000",
+                    "produto": "/api/v1/produto/1",
+                    "produto_pai": null,
+                    "profundidade": 2,
+                    "quantidade": "1.000",
+                    "sku": "F77H9BFVH",
+                    "tipo": "normal"
+                }
+            ],
+            "numero": 1,
+            "pagamentos": [
+                {
+                    "forma_pagamento": {
+                        "codigo": "entrega",
+                        "configuracoes": {
+                            "ativo": false,
+                            "disponivel": true
+                        },
+                        "id": 13,
+                        "imagem": "http://cdn.awsli.com.br/production/static/http://cdn.awsli.com.br/production/static/painel/img/formas-de-pagamento/entrega-logo.png",
+                        "nome": "Pagamento na entrega",
+                        "resource_uri": "/api/v1/pagamento/13"
+                    },
+                    "id": 1,
+                    "identificador_id": null,
+                    "pagamento_banco": null,
+                    "transacao_id": null,
+                    "valor": null,
+                    "valor_pago": null
+                }
+            ],
+            "peso_real": "2.000",
+            "resource_uri": "?id_externo=1",
+            "situacao": {
+                "aprovado": false,
+                "cancelado": false,
+                "codigo": "pedido_efetuado",
+                "final": false,
+                "id": 9,
+                "nome": "Pedido Efetuado",
+                "notificar_comprador": false,
+                "padrao": true,
+                "resource_uri": "/api/v1/situacao/9"
+            },
+            "valor_desconto": "0.00",
+            "valor_envio": "100.00",
+            "valor_subtotal": "20.00",
+            "valor_total": "120.00"
+        }
+
+## Código de rastreamento [/pedido_envio/{envio_id}]
+
++ Parameters
+    + envio_id: 2417337 (required, number) - ID do envio que está disponível ao consultar o detalhe do pedido
+
+### Atualizar código de rastreamento [PUT]
+O número **2417337** é o **id do envio** que está disponível ao consultar o detalhe do pedido. **pedido -> envios -> 0 -> id**
+
+>Não utilize o id do pedido nesta chamada pois não é o mesmo identificador.
+
++ Request (application/json)
+
+        {
+            "objeto": "PJ258408862BR"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "data_criacao": "2016-03-17T10:45:08.708600",
+            "data_modificacao": "2016-07-13T11:49:48.618917",
+            "id": 2417337,
+            "objeto": "PJ258408862BR",
+            "prazo": 1,
+            "valor": "15.45"
+        }
+
+# Group Integração de Pedidos
+
+Use este endpoint para enviar novos Pedidos de Venda, quando for necessário enviar um pedido quando os dados de preço, pagamento e frete que foram calculados anteriormente (exemplo: Marketplaces).
+
+## Novo pedido [/integration/sales]
+
+**buyer (dict)**
+>Informe os dados do comprador:
+>
+>    - name (string) - Nome Completo do Comprador
+>    - email (string) - Email do Comprador (obrigatório)
+>    - document (number) - O número do documento legal do Comprador (obrigatório). Somente números
+>    - external_id (number) - O Id do parceiro para o comprador
+>    - phone (number) - O número do telefone principal, somente números
+>    - type (string) - Utilize "CPF", "CNPJ" ou "RG" (obrigatório)
+
+**shipping (dict)**
+
+>Informe os dados de entrega:
+>
+>    - address
+>        - address (string): O endereço completo de entrega (obrigatório);
+>        - country (string): O codigo ISO de dois dígitos do País (obrigatório);
+>        - complement (string): O complemento do endereço;
+>        - street (string): Informe o logradouro;
+>        - city (string): Informe a cidade;
+>        - number (number): Informe o número;
+>        - zipcode (number): Informe o CEP (obrigatório);
+>        - district (string): Informe o bairro;
+>        - option (string): informe o tipo de envio;
+>   Valores: "pac" ou "sedex", por exemplo. Para ver as formas de envio validas consultar endpoint de Envio (opcional).
+
+**amount (dict)**
+>Informe o total do Pedido de Venda:
+>
+>    - discount (float): Informe o total de descontos;
+>    - freight (float): Informe o total de frete;
+>    - fees (float): informe o total de juros/multa/taxas;
+>    - total (float): informe o valor final;
+>    - gross (float): informa o valor total antes dos descontos.
+
+**itens (array)**
+>Informe os items do Pedido de Venda:
+>
+>    - product_id (number): O Id do Produto;
+>    - quantity (number): A quantidade do produto no pedido;
+>    - unit_value (float): O valor unitário do produto;
+>    - line_value (float): O subtotal do produto na venda.
+
+
+**info (dict)**
+>Informe dados gerais do Pedido de Venda:
+>
+>    - status (number): informe o status do pedido (obrigatório). Valores aceitos:
+>        - 2: Aguardando Pagamento
+>        - 3: Pedido em Análise
+>        - 4: Pedido Pago
+>        - 6: Pedido em Disputa
+>        - 7: Pagamento Devolvido
+>        - 8: Pedido Cancelado
+>        - 9: Pedido Efetuado (padrão)
+>        - 11: Pedido Enviado
+>        - 13: Pedido Pronto da Retirada
+>        - 14: Pedido Entregue
+>    - marketPlaceId: Informe o Id do marketplace no integrador.
+>    - reference: Diretório de referencia composto pelo integrador e marketplace.
+     Ex: hubMarket/b2w.
+
+**integration_data (dict)**
+>Informe os dados referente a integração do pedido:
+>
+>    - integrator(string)   : Nome do integrador;
+>    - marketplace (string) : Nome do MarketPlace;
+>    - Id Externo (number).
+
+### Cadastrar novo pedido [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: chave_api cx844c2c-6797-4e8e-b132-209ea015a9e7 aplicacao 7a7233e5-ffx3-5923-b147-eg8b604171xa
+
+    + Body
+
+            {
+                "buyer": {
+                    "name": "Vítor Martins",
+                    "email": "vitor@vitor.com",
+                    "document": "43665277825",
+                    "external_id": "43665277825",
+                    "phone": "2122331111",
+                    "type": "CPF",
+                    "cellphone":"965487546"
+                },
+                "shipping": {
+                    "address": {
+                        "name": "Nome do endereço de entrega",
+                        "address": "Rua do Bosque - 440",
+                        "country": "BR",
+                        "complement": "Ap 22",
+                        "street": "Rua do Bosque",
+                        "district": "Barra funda",
+                        "city": "S\u00e3o Paulo",
+                        "state": "SP",
+                        "zipcode": "4457115",
+                        "number": "440"
+                    },
+                    "option":"sedex"
+                },
+                "amount": {
+                    "discount": null,
+                    "freight": 100,
+                    "fees": null,
+                    "total": 3100.66,
+                    "gross": 3000.66
+                },
+                "items":[
+                    {
+                        "product_id": 15445119,
+                        "quantity": 1,
+                        "unit_value": 1000.22,
+                        "line_value": 1000.22
+                    },
+                    {
+                        "product_id": 15445111,
+                        "quantity": 2,
+                        "unit_value": 1000.22,
+                        "line_value": 2000.44
+                    }
+
+                ],
+                "info": {
+                    "status": "9",
+                    "marketPlaceId": "10981298389",
+                    "reference": "hub_name/MercadoLivre/",
+                    "comment": "observação ou comentário sobre o pedido"
+                },
+                "integration_data": {
+                    "integrator": "hub_name",
+                    "marketplace": "MercadoLivre",
+                    "external_id": null
+                }
+            }
+
++ Response 201 (application/json)
+
+        {
+            "id": 5518875,
+            "number": 61
+        }
+
+## Alterar pedido [/integration/sales/{pedido_id}]
+
++ Parameters
+    + pedido_id: 27 (required, number) - ID do pedido criado anteriormente
+
+### Editar pedido [PUT]
+Utilize este endpoint para atualizar o Pedido de Venda previamente criado.
+
+No corpo, utilize o mesmo formato do POST acima e informe o número do pedido na loja.
+
++ Request (application/json)
+
+        {
+            "buyer": {
+                "name": "Nome do Comprador",
+                "email": "novouser@user.com.br",
+                "document": "94266699301",
+                "external_id": 936,
+                "phone": "4430336133",
+                "type": "CPF"
+            },
+            "amount": {
+                "discount": 0,
+                "freight": 0,
+                "fees": 0,
+                "total": 19.9,
+                "gross": 19.9
+            },
+            "shipping": {
+                "address": {
+                    "address": "Avenida Horacio Raccanello Filho 5410 - Centro",
+                    "country": "BR",
+                    "complement": null,
+                    "street": "Avenida Horacio Raccanello Filho",
+                    "city": "Maringa",
+                    "number": 5410,
+                    "state": "PR",
+                    "zipcode": "87020035",
+                    "district": "Centro"
+                },
+                "option": null
+            },
+            "items": [
+                {
+                    "product_id": 11832876,
+                    "unit_value": 19.9,
+                    "line_value": 19.9,
+                    "quantity": 1
+                }
+            ],
+            "info": {
+                "account_id": 310387,
+                "status": 4,
+                "creation_date": "2016-07-11T10:47:03Z",
+                "contract_id": 1,
+                "reference": "1234"
+            }
+        }
+
++ Response 202 (application/json)
+
+        {
+            "id": 27,
+            "numero": 345,
+            "cliente_id": 1,
+            "valor_subtotal": 100.10,
+            "valor_envio": 10.00,
+            "valor_desconto": 5.00,
+            "valor_total": 105.10,
+            "data_criacao": "2013-01-01 00:00:00",
+            "data_modificacao": "2013-01-01 00:00:00",
+            "data_expiracao": "2013-01-10 00:00:00",
+        }
+
+## Nota Fiscal do pedido [/integration/pedido/nf]
+
+### Inserir nota fiscal [POST]
+- account_key: A chave API da loja
+- access_key: Chave de acesso da nota fiscal
+- sale_number: O número do pedido de venda
+- url: A url para visualização da nota fiscal
+- date: A data de criação da nota fiscal
+- invoice_number: O número da nota fiscal
+- serie: O número de séria da nota fiscal
+
+
++ Request (multipart/form-data)
+
+    + Headers
+
+            cache-control: no-cache
+
+    + Body
+
+            account_key = 123abc-123abc-123abc-123abc-123abc
+            access_key = 00000000000000000000000000000000000000000000
+            sale_number = 1000
+            url = www.url.com
+            date = 2018-01-25 10:00:00
+            invoice_number = 000001
+            serie = 1
+
++ Response 200 (application/json)
+
+        {
+            "status": 200
+            "msg": "Invoice successfully inserted"
+        }
+
+# Group Código HTML
+
+Adicione qualquer HTML no rodapé o head da loja
+
+## Códigos HTML [/codigo_html]
+
+### Listar todos os códigos HTML [GET]
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "limit": 20,
+                "next": null,
+                "offset": 0,
+                "previous": null,
+                "total_count": 2
+            },
+            "objects": [
+                {
+                    "conteudo": "<meta value=\"Exemplo\" />",
+                    "data_criacao": "2017-04-28T15:20:52.053564",
+                    "data_modificacao": "2017-04-28T15:20:52.053604",
+                    "descricao": "Código do cabecalho",
+                    "local_publicacao": "cabecalho",
+                    "pagina_publicacao": "todas",
+                    "resource_uri": "/api/v1/codigo_html/6",
+                    "tipo": "html"
+                },
+                {
+                    "conteudo": "<img src=\"\" />",
+                    "data_criacao": "2017-04-28T15:20:52.103819",
+                    "data_modificacao": "2017-04-28T15:20:52.103839",
+                    "descricao": "Código do rodapé",
+                    "local_publicacao": "rodape",
+                    "pagina_publicacao": "todas",
+                    "resource_uri": "/api/v1/codigo_html/7",
+                    "tipo": "html"
+                }
+            ]
+        }
+
+### Cadastrar novo código HTML [POST]
+Cadastra um novo código HTML na loja.
+
+>Campos disponíveis:
+>- **conteudo** (obrigatório)(string): HTML a ser adicionado na página
+>- **tipo** (obrigatório)(string): Tipo de código que esta sendo enviado - '**html**', '**css**', '**javascript**'
+>- **descricao** (obrigatório)(string): Nome para identificação do código
+>- **pagina_publicacao** (obrigatório)(string): Página onde o código irá aparecer, apenas uma opção - '**todas**', '**loja/index**', '**loja/produto_detalhar**', '**loja/categoria_listar**', '**loja/carrinho_index**', '**loja/checkout_index**', '**loja/checkout_finalizacao**'
+>- **local_publicacao** (string): Exibir código antes da tag de fechamando \</body\> ou dentro do \<head\> - '**cabecalho**', '**rodape**'
+
++ Request (application/json)
+
+        {
+            "conteudo": "<img src=\"\" />",
+            "tipo": "html",
+            "descricao": "Via API",
+            "pagina_publicacao": "todas",
+            "local_publicacao": "rodape"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "conteudo": "<img src=\"\" />",
+            "data_criacao": "2017-04-28T16:07:17.379279",
+            "data_modificacao": "2017-04-28T16:07:17.379296",
+            "descricao": "Via API",
+            "local_publicacao": "rodape",
+            "pagina_publicacao": "todas",
+            "resource_uri": "/api/v1/codigo_html/10",
+            "tipo": "html"
+        }
+
+## Código HTML específico [/codigo_html/{html_id}]
+
++ Parameters
+    + html_id: 2 (required, number) - ID do código HTML
+
+### Detalhes do código HTML [GET]
+
++ Response 200 (application/json)
+
+        {
+            "conteudo": "<img src=\"\" />",
+            "data_criacao": "2017-04-28T16:07:17.379279",
+            "data_modificacao": "2017-04-28T16:07:17.379296",
+            "descricao": "Via API",
+            "local_publicacao": "rodape",
+            "pagina_publicacao": "todas",
+            "resource_uri": "/api/v1/codigo_html/10",
+            "tipo": "html"
+        }
+
+### Alterar código HTML [PUT]
+Atualiza as informações de um código HTML.
+
+>Campos disponíveis:
+>- **conteudo** (obrigatório)(string): HTML a ser adicionado na página
+>- **tipo** (obrigatório)(string): Tipo de código que esta sendo enviado - '**html**', '**css**', '**javascript**'
+>- **descricao** (obrigatório)(string): Nome para identificação do código
+>- **pagina_publicacao** (obrigatório)(string): Página onde o código irá aparecer, apenas uma opção - '**todas**', '**loja/index**', '**loja/produto_detalhar**', '**loja/categoria_listar**', '**loja/carrinho_index**', '**loja/checkout_index**', '**loja/checkout_finalizacao**'
+>- **local_publicacao** (string): Exibir código antes da tag de fechamando \</body\> ou dentro do \<head\> - '**cabecalho**', '**rodape**'
+
++ Request (application/json)
+
+        {
+            "conteudo": "alert(content)",
+            "tipo": "javascript"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "conteudo": "alert(content)",
+            "data_criacao": "2017-04-28T16:07:17.379279",
+            "data_modificacao": "2017-04-28T16:07:17.379296",
+            "descricao": "Via API",
+            "local_publicacao": "rodape",
+            "pagina_publicacao": "todas",
+            "resource_uri": "/api/v1/codigo_html/10",
+            "tipo": "javascript"
+        }
+
+
+# Group Webhook
+
+**APENAS PARA APLICATIVOS AUTORIZADOS**
+
+- TOKEN: **seu-token-de-autenticacao**
+- URL de CALLBACK: <https://api.meusistema.com/webhook>
+
+A cada alteração, o sistema irá fazer um POST na URL configurada dentro do sistema da Loja Integrada, utiliznado o TOKEN fornecido.
+
+Exemplo de Header que será enviado:
+```
+{
+    X-LI-WebHook-Version: product_v1.0,
+    X-LI-WebHook-Id: <GUID>,
+    Authorization: Bearer <TOKEN>
+}
+```
+
+## Alteração de produto [/sua-url-de-webhook]
+
+### Produto v1.0 [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            X-LI-WebHook-Version: product_v1.0
+            X-LI-WebHook-Id: <GUID>
+            X-LI-Timestamp: <DATAATUALIZACAO>
+            Authorization: Bearer <TOKEN>
+
+    + Body
+
+            {
+                "ativo": true,
+                "caracteristicas": null,
+                "categorias": [
+                    {
+                        "nivel_1": {
+                            "agregavel": "0002.Diversos|^/diversos|^2047266|^",
+                            "id": 0000000,
+                            "nome": "Diversos",
+                            "parent_id": null,
+                            "posicao": 1,
+                            "url": "/diversos"
+                        },
+                        "principal": true
+                    }
+                ],
+                "data_criacao": "2018-12-02T15:40:46.855106-02:00",
+                "data_modificacao": "2019-02-08T15:31:21.117171-02:00",
+                "descricao": "Uma descricao informativa",
+                "destaque": false,
+                "disponivel": true,
+                "estoque": {
+                    "disponivel": true,
+                    "gerenciado": false,
+                    "quantidade": 0,
+                    "situacao_em_estoque": 0,
+                    "situacao_sem_estoque": 0
+                },
+                "frete_gratis": false,
+                "gtin": "",
+                "id": 0000000,
+                "imagens": [
+                    {
+                        "caminho": "000/000000/produto/00000000/ffffffff.jpg",
+                        "id": 0000001,
+                        "posicao": 0,
+                        "principal": true
+                    },
+                    {
+                        "caminho": "000/000000/produto/00000000/ffffffff.jpg",
+                        "id": 0000002,
+                        "posicao": 1,
+                        "principal": true
+                    }
+                ],
+                "marca": {
+                    "agregavel": null,
+                    "id": null,
+                    "nome": null,
+                    "nome_buscavel": null
+                },
+                "mpn": "",
+                "ncm": "00000000",
+                "nome": "Produto exemplo",
+                "nome_ordenavel": "produto-exemplo",
+                "preco": {
+                    "cheio": 0.74,
+                    "com_promocao": false,
+                    "promocional": null,
+                    "sob_consulta": false,
+                    "tem_variacao": false,
+                    "venda": 0.74
+                },
+                "preco_com_promocao": false,
+                "removido": false,
+                "seo": {
+                    "description": "",
+                    "keywords": "kw1,kw2",
+                    "title": ""
+                },
+                "sku": "XXXXXXXX",
+                "tipo": "atributo",
+                "url": "/um-produto-exemplo",
+                "usado": false,
+                "variacao_imagens": [],
+                "variacoes": [
+                    {
+                        "altura": 1,
+                        "ativo": true,
+                        "comprimento": 1,
+                        "disponivel": true,
+                        "estoque": {
+                            "disponivel": true,
+                            "gerenciado": true,
+                            "quantidade": 1,
+                            "situacao_em_estoque": 0,
+                            "situacao_sem_estoque": -1
+                        },
+                        "gtin": "",
+                        "id": 0000002,
+                        "largura": 5,
+                        "mpn": "",
+                        "peso": 0.01,
+                        "preco": {
+                            "cheio": 0.74,
+                            "com_promocao": false,
+                            "promocional": null,
+                            "sob_consulta": false,
+                            "venda": 0.74
+                        },
+                        "preco_com_promocao": false,
+                        "sku": "XXXXXXXX-01-v"
+                    }
+                ],
+                "youtube": null
+            }
+
++ Response 200
+
+## Alteração de pedido [/url-de-webhook]
+
+&nbsp;
+
+**EM BREVE**
+
+### Pedido v1.0 [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            X-LI-WebHook-Version: order_v1.0
+            X-LI-WebHook-Id: <GUID>
+            X-LI-Timestamp: <DATAATUALIZACAO>
+            Authorization: Bearer <TOKEN>
+
+    + Body
+
+            {
+
+            }
+
++ Response 200
